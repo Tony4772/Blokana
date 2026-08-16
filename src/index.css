@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #0a1020;
+  color: #eef2ff;
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Fondo con geometría andina discreta (patrón CSS, sin imágenes) */
+.bg-blokana {
+  background:
+    radial-gradient(120% 80% at 50% -10%, #1c2a4d 0%, #0d1424 55%, #080d19 100%);
+  position: relative;
+}
+.bg-blokana::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image:
+    linear-gradient(45deg, transparent 46%, #7bd389 46%, #7bd389 54%, transparent 54%),
+    linear-gradient(-45deg, transparent 46%, #6ea8f0 46%, #6ea8f0 54%, transparent 54%);
+  background-size: 56px 56px;
+}
+
+/* Animaciones (transform/opacity: aceleradas por GPU) */
+@keyframes blkClear {
+  0% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(1.18); opacity: 1; filter: brightness(1.7); }
+  100% { transform: scale(0.1); opacity: 0; }
+}
+.blk-clear {
+  animation: blkClear 300ms ease-in forwards;
+}
+
+@keyframes floatUp {
+  0% { transform: translate(-50%, 0) scale(0.7); opacity: 0; }
+  20% { transform: translate(-50%, -12px) scale(1.08); opacity: 1; }
+  100% { transform: translate(-50%, -70px) scale(1); opacity: 0; }
+}
+.burst {
+  animation: floatUp 900ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.86); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pop-in { animation: popIn 220ms cubic-bezier(0.2, 0.9, 0.3, 1.1) both; }
+
+@keyframes slideUp {
+  0% { transform: translateY(24px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.slide-up { animation: slideUp 260ms cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+
+@keyframes pulseSoft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.pulse-soft { animation: pulseSoft 1.8s ease-in-out infinite; }
+
+@keyframes scorePop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+.score-pop { animation: scorePop 320ms ease-out; }
+
+@keyframes sparkle {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+.sparkle { animation: sparkle 520ms ease-out forwards; }
+
+.btn-3d {
+  transition: transform 120ms ease, filter 120ms ease;
+}
+.btn-3d:active {
+  transform: translateY(2px) scale(0.985);
+  filter: brightness(0.95);
+}
