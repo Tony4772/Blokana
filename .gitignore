@@ -17,3 +17,6 @@ android/app/src/main/assets/public/
 android/blokana_keystore
 android/local.properties
 android/splash.rar
+
+# Android signing
+android/keystore.properties
