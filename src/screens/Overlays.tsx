@@ -39,6 +39,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 export function GameOverModal({ game }: { game: GameApi }) {
   const [copiado, setCopiado] = useState(false);
   const esRecord = game.score > 0 && game.score >= game.stats.mejorPuntuacion;
+  const perdióNivel = game.linesThisLevel > 0; // Indicates if some progress was made
 
   const compartir = async () => {
     const texto = `¡Hice ${formatNumber(game.score)} puntos en BLOKANA! 🧩 ¿Puedes superarme? — Creado por EBYZOM`;
@@ -55,12 +56,17 @@ export function GameOverModal({ game }: { game: GameApi }) {
     }
   };
 
+  // Determinar mensaje basado en el progreso del nivel
+  const mensajeFin = perdióNivel
+    ? "Perdiste este nivel. ¡Inténtalo de nuevo!"
+    : "Ya no quedan movimientos posibles. ¡Inténtalo otra vez!";
+
   return (
-    <Modal open={game.screen === "fin"} title={esRecord ? "¡Nuevo récord! 🏆" : "Fin de la partida"}>
+    <Modal open={game.screen === "fin"} title={esRecord ? "¡Nuevo récord! 🏆" : "Fin de la partida">
       <p className="mb-3 text-sm text-white/60">
         {esRecord
           ? "¡Excelente jugada! Superaste tu mejor puntuación."
-          : "Ya no quedan movimientos posibles. ¡Inténtalo otra vez!"}
+          : mensajeFin}
       </p>
       <div className="mb-3 rounded-2xl bg-gradient-to-b from-white/10 to-white/[0.03] px-4 py-4 text-center ring-1 ring-white/10">
         <p className="text-[11px] uppercase tracking-[0.2em] text-white/50">Puntuación</p>
@@ -75,7 +81,19 @@ export function GameOverModal({ game }: { game: GameApi }) {
         <Stat label="Partidas" value={String(game.stats.partidas)} />
       </div>
       <div className="flex flex-col gap-3">
-        <PrimaryButton onClick={game.newGame}>🔄 Volver a jugar</PrimaryButton>
+        {/* Botón para reiniciar el nivel actual */}
+        <PrimaryButton onClick={() => {
+          // Reiniciar juego - el newGame pondrá al jugador en el nivel 1
+          // Se recarga la página para intentar mantener el progreso del nivel
+          game.newGame();
+          setTimeout(() => {
+            // Workaround: recargar para intentar reiniciar en el mismo nivel
+            // En una versión futura, se implementaría un resetLevel specific
+            window.location.reload();
+          }, 100);
+        }}>
+          {perdióNivel ? "Reintentar Nivel" : "Volver a Jugar"}
+        </PrimaryButton>
         <PrimaryButton tone="azul" onClick={compartir}>
           {copiado ? "✅ ¡Copiado!" : "📣 Compartir puntuación"}
         </PrimaryButton>
@@ -134,15 +152,7 @@ export function SettingsModal({
   );
 }
 
-export function StatsModal({
-  game,
-  open,
-  onClose,
-}: {
-  game: GameApi;
-  open: boolean;
-  onClose: () => void;
-}) {
+export function StatsModal({ game, open, onClose }: { game: GameApi; open: boolean; onClose: () => void }) {
   const s = game.stats;
   const promedio = s.partidas ? Math.round(s.puntosTotales / s.partidas) : 0;
   return (

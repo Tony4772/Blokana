@@ -2,9 +2,9 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "com.mobileblockpuzzle.game"
-    compileSdk rootProject.ext.compileSdkVersion
+    compileSdk 37
     defaultConfig {
-        applicationId "com.mobileblockpuzzle.game"
+        applicationId 'com.ebyzom.blokana'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -21,6 +21,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
@@ -41,8 +46,6 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
 }
-
-apply from: 'capacitor.build.gradle'
 
 try {
     def servicesJSON = file('google-services.json')

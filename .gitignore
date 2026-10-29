@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.env
+*.local
+.DS_Store
+
+# Android / Gradle
+android/.gradle/
+android/.idea/
+android/app/build/
+android/app/release/
+android/build/
+android/capacitor-cordova-android-plugins/build/
+android/app/src/main/assets/public/
+
+# Local / sensitive
+android/blokana_keystore
+android/local.properties
+android/splash.rar

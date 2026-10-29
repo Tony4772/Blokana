@@ -24,13 +24,17 @@ export const COLORS: Record<ColorKey, { base: string; light: string; dark: strin
   mandarina: { base: "#F97316", light: "#FFAA63", dark: "#B94E07" },
 };
 
-export const COLOR_KEYS = Object.keys(COLORS) as ColorKey[];
+export const COLOR_KEYS = Object.keys(COLORS) as ColorKey;
 
 /** Puntuación */
 export const PTS_PER_CELL = 1;
 export const PTS_PER_LINE = 10;
 export const MULTI_LINE_BONUS = [0, 0, 20, 60, 120, 220, 350, 500, 700, 900];
 export const COMBO_BONUS = 15;
+
+/** Progresión de niveles: líneas necesarias para pasar al siguiente nivel */
+export const LINES_PER_LEVEL_STEP = 5; // cada nivel requiere 5 líneas más que el anterior
+export const LINES_TO_LEVEL_1 = 5; // para pasar del nivel 1 al 2 se necesitan 5 líneas
 
 export const STORAGE_KEY = "blokana.save.v1";
 export const BRAND = "EBYZOM";

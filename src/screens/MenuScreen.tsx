@@ -70,7 +70,7 @@ export default function MenuScreen({
               ▶ Continuar partida
             </PrimaryButton>
           )}
-          <PrimaryButton onClick={game.newGame}>🎮 Jugar</PrimaryButton>
+          <PrimaryButton onClick={game.newGame}>🎮 Nuevo Juego (Nivel 1)</PrimaryButton>
           <div className="grid grid-cols-3 gap-3">
             <button
               onClick={onHelp}
@@ -91,6 +91,11 @@ export default function MenuScreen({
               ⚙️ Ajustes
             </button>
           </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2 text-sm text-white/60">
+          <span>Objetivo: Avanzar de nivel completando líneas</span>
+          <span>Cada nivel requiere {5} líneas más que el anterior</span>
         </div>
       </div>
 

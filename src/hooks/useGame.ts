@@ -1,15 +1,8 @@
 /** Hook principal: orquesta tablero, piezas, puntuación, audio y persistencia. */
+/** Sistema de niveles progresivos: debes vencer el nivel actual para avanzar. */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { TRAY_SIZE } from "../game/constants";
-import {
-  applyClears,
-  canPlace,
-  createBoard,
-  findClears,
-  hasAnyMove,
-  placePiece,
-  type Board,
-} from "../game/board";
+import { applyClears, canPlace, createBoard, findClears, hasAnyMove, placePiece, type Board } from "../game/board";
 import { makePiece, type Piece } from "../game/pieces";
 import { comboLabel, computeScore } from "../game/scoring";
 import { audio, vibrate } from "../services/audio";
@@ -33,6 +26,10 @@ export interface Burst {
 
 const CLEAR_MS = 300;
 
+/** Niveles progresivos: líneas necesarias para avanzar */
+const LINES_TO_LEVEL_1 = 5; // para pasar del nivel 1 al 2
+export const LINES_PER_LEVEL_STEP = 5; // cada nivel siguiente requiere 5 líneas más
+
 export function useGame() {
   const initial = useRef(loadSave()).current;
 
@@ -41,7 +38,7 @@ export function useGame() {
   const [screen, setScreen] = useState<Screen>("menu");
   const [board, setBoard] = useState<Board>(() => initial.current?.board ?? createBoard());
   const [tray, setTray] = useState<(Piece | null)[]>(
-    () => initial.current?.tray ?? [makePiece(), makePiece(), makePiece()],
+    () => initial.current?.tray ?? makeTray(TRAY_SIZE),
   );
   const [score, setScore] = useState(initial.current?.score ?? 0);
   const [lines, setLines] = useState(initial.current?.lines ?? 0);
@@ -50,6 +47,10 @@ export function useGame() {
   const [clearing, setClearing] = useState<number[]>([]);
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [lastGain, setLastGain] = useState(0);
+  const [level, setLevel] = useState<number>(initial.current?.level ?? 1);
+  const [linesThisLevel, setLinesThisLevel] = useState<number>(
+    initial.current?.linesThisLevel ?? LINES_TO_LEVEL_1,
+  );
   const hasSaved = !!initial.current && (initial.current.score > 0 || initial.current.board.some(Boolean));
   const [canContinue, setCanContinue] = useState(hasSaved);
 
@@ -94,9 +95,10 @@ export function useGame() {
 
   useEffect(() => {
     if (screen !== "jugando" && screen !== "pausa") return;
-    persist({ current: { board, tray, score, lines, combo, maxCombo } });
+    const linesNeeded = LINES_TO_LEVEL_1 + (level - 1) * LINES_PER_LEVEL_STEP;
+    persist({ current: { board, tray, score, lines, combo, maxCombo, level, linesThisLevel: linesNeeded - LINES_PER_LEVEL_STEP } });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [board, tray, score, lines, combo, maxCombo, screen]);
+  }, [board, tray, score, lines, combo, maxCombo, level, linesThisLevel, screen]);
 
   const updateSettings = useCallback(
     (patch: Partial<Settings>) => {
@@ -109,19 +111,36 @@ export function useGame() {
     [persist],
   );
 
+  /** Calcula las líneas necesarias para el próximo nivel */
+  const linesNeededForNextLevel = () => LINES_TO_LEVEL_1 + (level - 1) * LINES_PER_LEVEL_STEP;
+
+  /** Verifica si hay suficiente líneas para subir de nivel */
+  const canLevelUp = () => lines >= linesNeededForNextLevel();
+
+  /** Sube de nivel y reinicia el contador de líneas del nivel actual */
+  const levelUp = () => {
+    const newLevel = Math.min(level + 1, 100); // límite arbitrario alto
+    setLevel(newLevel);
+    setLinesThisLevel(LINES_TO_LEVEL_1 + (newLevel - 1) * LINES_PER_LEVEL_STEP);
+    // Emitir burst de nivel
+    // pushBurst(`¡Nivel ${newLevel}!`, "combo"); // descomentar cuando se integra pushBurst
+  };
+
   /* ---------------- ciclo de partida ---------------- */
   const newGame = useCallback(() => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     const fresh = createBoard();
     setBoard(fresh);
-    setTray([makePiece(), makePiece(), makePiece()]);
+    setTray(makeTray(TRAY_SIZE));
     setScore(0);
     setLines(0);
     setCombo(0);
     setMaxCombo(0);
     setClearing([]);
-    setBursts([]);
+    setBursts[];
+    setLevel(1);
+    setLinesThisLevel(LINES_TO_LEVEL_1);
     setScreen("jugando");
     setCanContinue(true);
     audio.unlock();
@@ -147,7 +166,7 @@ export function useGame() {
   );
 
   const endGame = useCallback(
-    (finalScore: number, finalLines: number, finalMax: number) => {
+    (finalScore: number, finalLines: number, finalMax: number, level: number) => {
       audio.play("gameover");
       vibrate([40, 60, 90], settings.vibration);
       audio.stopMusic();
@@ -166,6 +185,8 @@ export function useGame() {
         flushSave();
         return next;
       });
+      // Notify that level was lost - this can be used for analytics or UI
+      console.log(`Level ${level} finished - game over`);
     },
     [settings],
   );
@@ -190,6 +211,16 @@ export function useGame() {
         combo: combo,
       }).total;
 
+      // Verificar si sube de nivel
+      const nextLinesNeeded = linesNeededForNextLevel();
+      let levelUpTriggered = false;
+      if (lines + totalLines >= nextLinesNeeded && level < 100) {
+        levelUpTriggered = true;
+        setLevel((l) => l + 1);
+        setLinesThisLevel((ln) => LINES_TO_LEVEL_1 + (l) * LINES_PER_LEVEL_STEP); // l es el nuevo nivel - 1
+        pushBurst(`¡Nivel ${level + 1}!`, "combo");
+      }
+
       const nextTray = tray.slice();
       nextTray[trayIndex] = null;
       const refill = nextTray.every((p) => p === null);
@@ -204,6 +235,9 @@ export function useGame() {
       setCombo(newCombo);
       setMaxCombo((m) => Math.max(m, newCombo));
       setLines((l) => l + totalLines);
+      setLinesThisLevel((ll) => ll + totalLines);
+
+      // Si subió de nivel, el contador se reinicia automáticamente por el state setter
 
       audio.play("colocar");
       vibrate(12, settings.vibration);
@@ -216,6 +250,7 @@ export function useGame() {
                 score + gain,
                 lines + totalLines,
                 Math.max(maxCombo, newCombo),
+                level
               ),
             360,
           );
@@ -232,7 +267,7 @@ export function useGame() {
         later(() => {
           const cleanBoard = applyClears(placed, cleared);
           setBoard(cleanBoard);
-          setClearing([]);
+          setClearing[];
           finishTurn(cleanBoard);
         }, CLEAR_MS);
       } else {
@@ -241,7 +276,7 @@ export function useGame() {
       }
       return true;
     },
-    [board, tray, screen, combo, score, lines, maxCombo, settings.vibration, later, pushBurst, endGame],
+    [board, tray, screen, combo, score, lines, maxCombo, level, linesThisLevel, settings.vibration, later, pushBurst, endGame],
   );
 
   const pause = useCallback(() => {
@@ -260,6 +295,8 @@ export function useGame() {
     lines,
     combo,
     maxCombo,
+    level,
+    linesThisLevel,
     clearing,
     bursts,
     lastGain,

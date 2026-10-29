@@ -1,5 +1,7 @@
 import { memo } from "react";
 import { formatNumber } from "../game/helpers";
+import { LINES_PER_LEVEL_STEP, LINES_TO_LEVEL_1 } from "../game/constants";
+import { useGame } from "../hooks/useGame";
 import { EbyzomMark } from "./Brand";
 
 interface Props {
@@ -11,6 +13,9 @@ interface Props {
 }
 
 function HudBase({ score, best, combo, onPause, onSettings }: Props) {
+  const { level, linesThisLevel } = useGame();
+  const linesNeededForNextLevel = LINES_TO_LEVEL_1 + (level - 1) * LINES_PER_LEVEL_STEP;
+
   return (
     <header className="w-full max-w-[520px] px-3 pt-2">
       <div className="flex items-center justify-between">
@@ -52,6 +57,16 @@ function HudBase({ score, best, combo, onPause, onSettings }: Props) {
           <p className={`text-base font-bold ${combo > 1 ? "text-emerald-300 pulse-soft" : "text-white/70"}`}>
             x{combo}
           </p>
+        </div>
+      </div>
+
+      {/* Información de nivel y progreso */}
+      <div className="mt-2 flex items-center justify-between">
+        <div className="text-sm text-white/60">
+          Nivel {level}
+        </div>
+        <div className="text-sm text-white/60">
+          Progreso: {linesThisLevel}/{linesNeededForNextLevel} líneas
         </div>
       </div>
     </header>
