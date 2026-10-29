@@ -33,6 +33,7 @@ export default function App() {
     }, 2000);
     return () => clearTimeout(timer);
   }, [showSplash]);
+  const game = useGame();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -88,6 +89,7 @@ export default function App() {
         <GameOverModal game={game} />
         <SettingsModal game={game} open={settingsOpen} onClose={() => setSettingsOpen(false)} />
         <StatsModal game={game} open={statsOpen} onClose={() => setStatsOpen(false)} />
+        <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       </main>
       <AdMobBanner />
     </div>

@@ -103,6 +103,12 @@ export default function MenuScreen({
         <EbyzomMark size={30} />
         <CreadoPorEbyzom />
         <p className="text-[10px] text-white/30">Versión 1.0 · Juega sin conexión</p>
+        <button
+          onClick={() => window.open("/politica-privacidad.html", "_blank")}
+          className="text-[10px] text-white/40 underline underline-offset-2 hover:text-white/70"
+        >
+          Política de Privacidad
+        </button>
       </div>
     </div>
   );

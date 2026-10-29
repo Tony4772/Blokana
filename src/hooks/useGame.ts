@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { TRAY_SIZE } from "../game/constants";
 import { applyClears, canPlace, createBoard, findClears, hasAnyMove, placePiece, type Board } from "../game/board";
-import { makePiece, type Piece } from "../game/pieces";
+import { makePiece, makeTray, type Piece } from "../game/pieces";
 import { comboLabel, computeScore } from "../game/scoring";
 import { audio, vibrate } from "../services/audio";
 import {
@@ -138,7 +138,7 @@ export function useGame() {
     setCombo(0);
     setMaxCombo(0);
     setClearing([]);
-    setBursts[];
+    setBursts([]);
     setLevel(1);
     setLinesThisLevel(LINES_TO_LEVEL_1);
     setScreen("jugando");
@@ -216,9 +216,10 @@ export function useGame() {
       let levelUpTriggered = false;
       if (lines + totalLines >= nextLinesNeeded && level < 100) {
         levelUpTriggered = true;
-        setLevel((l) => l + 1);
-        setLinesThisLevel((ln) => LINES_TO_LEVEL_1 + (l) * LINES_PER_LEVEL_STEP); // l es el nuevo nivel - 1
-        pushBurst(`¡Nivel ${level + 1}!`, "combo");
+        const newLevel = Math.min(level + 1, 100);
+        setLevel(newLevel);
+        setLinesThisLevel(LINES_TO_LEVEL_1 + (newLevel - 1) * LINES_PER_LEVEL_STEP);
+        pushBurst(`¡Nivel ${newLevel}!`, "combo");
       }
 
       const nextTray = tray.slice();
@@ -267,7 +268,7 @@ export function useGame() {
         later(() => {
           const cleanBoard = applyClears(placed, cleared);
           setBoard(cleanBoard);
-          setClearing[];
+          setClearing([]);
           finishTurn(cleanBoard);
         }, CLEAR_MS);
       } else {

@@ -25,6 +25,8 @@ export interface SavedGame {
   lines: number;
   combo: number;
   maxCombo: number;
+  level?: number;
+  linesThisLevel?: number;
 }
 
 export interface SaveData {

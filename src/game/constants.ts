@@ -24,7 +24,7 @@ export const COLORS: Record<ColorKey, { base: string; light: string; dark: strin
   mandarina: { base: "#F97316", light: "#FFAA63", dark: "#B94E07" },
 };
 
-export const COLOR_KEYS = Object.keys(COLORS) as ColorKey;
+export const COLOR_KEYS = Object.keys(COLORS) as ColorKey[];
 
 /** Puntuación */
 export const PTS_PER_CELL = 1;

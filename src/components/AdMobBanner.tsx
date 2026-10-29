@@ -5,21 +5,24 @@ import {
   BannerAdPosition,
 } from "@capacitor-community/admob";
 
+// ID de prueba de Google. Reemplazar por el ID real del banner antes de publicar.
+const BANNER_AD_ID = "ca-app-pub-3940256099942544/6300978111";
+
 export function AdMobBanner() {
   useEffect(() => {
+    let cancelled = false;
+
     async function startAdMob() {
       try {
-        // Initialize the SDK
         await AdMob.initialize();
 
-        // Show banner at bottom center with smart size
-        const options = {
-          position: BannerAdPosition.BOTTOM_CENTER,
-          size: BannerAdSize.SMART_BANNER,
-          // offsetTopStatusBar: true, // uncomment if needed for notches
-        };
+        if (cancelled) return;
 
-        await AdMob.showBanner(options);
+        await AdMob.showBanner({
+          adId: BANNER_AD_ID,
+          position: BannerAdPosition.BOTTOM_CENTER,
+          adSize: BannerAdSize.ADAPTIVE_BANNER,
+        });
       } catch (error) {
         console.error("AdMob error:", error);
       }
@@ -27,14 +30,10 @@ export function AdMobBanner() {
 
     startAdMob();
 
-    // Cleanup on unmount
-    return async () => {
-      try {
-        await AdMob.hideBanner();
-        await AdMob.destroyBanner();
-      } catch (error) {
-        console.error("AdMob cleanup error:", error);
-      }
+    return () => {
+      cancelled = true;
+      AdMob.hideBanner().catch(() => {});
+      AdMob.removeBanner().catch(() => {});
     };
   }, []);
 

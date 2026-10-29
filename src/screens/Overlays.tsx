@@ -62,7 +62,7 @@ export function GameOverModal({ game }: { game: GameApi }) {
     : "Ya no quedan movimientos posibles. ¡Inténtalo otra vez!";
 
   return (
-    <Modal open={game.screen === "fin"} title={esRecord ? "¡Nuevo récord! 🏆" : "Fin de la partida">
+    <Modal open={game.screen === "fin"} title={esRecord ? "¡Nuevo récord! 🏆" : "Fin de la partida"}>
       <p className="mb-3 text-sm text-white/60">
         {esRecord
           ? "¡Excelente jugada! Superaste tu mejor puntuación."
