@@ -11,49 +11,59 @@ export default function EbyzomSplash({
   tagline = "Puzzle de bloques con sabor peruano 🇵🇪",
   onFinished,
 }: EbyzomSplashProps) {
-  const [brand, setBrand] = useState(true);
-  const [show, setShow] = useState(true);
+  const [fadeOut, setFadeOut] = useState(false);
+  const [mounted, setMounted] = useState(true);
 
   useEffect(() => {
-    // Ocultar splash después de 2 segundos si aún está visible
-    const timer = setTimeout(() => setShow(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    // Inicia fade out a los 1200ms
+    const fadeTimer = setTimeout(() => {
+      setFadeOut(true);
+    }, 1200);
 
-  // Cuando termina la animación de marca, ocultar splash después de un retraso
-  useEffect(() => {
-    if (!brand && show) {
-      const timer = setTimeout(() => setShow(false), 500);
-      return () => clearTimeout(timer);
-    }
-  }, [brand, show]);
+    // Concluye y desmotan a los 1500ms
+    const finishTimer = setTimeout(() => {
+      setMounted(false);
+      onFinished();
+    }, 1500);
 
-  if (show) {
-    return (
-      <div
-        onClick={() => setShow(false)}
-        className="fixed inset-0 z-50 flex cursor-pointer items-center justify-center bg-black px-10 select-none transition-opacity"
-        style={{ opacity: brand ? 1 : 0 }}
-      >
-        {brand && (
-          <img
-            src="/ebyzom_logo.png"
-            alt="EBYZOM"
-            className="max-h-[60%] max-w-full object-contain"
-          />
-        )}
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(finishTimer);
+    };
+  }, [onFinished]);
+
+  const handleDismiss = () => {
+    setFadeOut(true);
+    setTimeout(() => {
+      setMounted(false);
+      onFinished();
+    }, 150);
+  };
+
+  if (!mounted) return null;
+
+  return (
+    <div
+      onClick={handleDismiss}
+      className={`fixed inset-0 z-50 flex cursor-pointer flex-col items-center justify-center bg-[#0a1020] px-6 select-none transition-opacity duration-300 ease-out ${
+        fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
+      }`}
+    >
+      <div className="flex flex-col items-center justify-center text-center">
+        <img
+          src="/ebyzom_logo.png"
+          alt="EBYZOM"
+          className="max-h-[120px] max-w-[240px] object-contain drop-shadow-lg"
+          onError={(e) => {
+            // Si la imagen falla, no bloquear la pantalla
+            (e.currentTarget as HTMLElement).style.display = "none";
+          }}
+        />
+        <div className="mt-6 flex flex-col items-center">
+          <h1 className="text-2xl font-bold tracking-wider text-amber-300">{appName}</h1>
+          <p className="mt-1 text-xs text-slate-400">{tagline}</p>
+        </div>
       </div>
-    );
-  }
-
-  // Después de ocultar splash, esperar un momento y ejecutar onFinished
-  useEffect(() => {
-    if (!show) {
-      const delay = brand ? 500 : 0;
-      const timer = setTimeout(() => onFinished(), delay);
-      return () => clearTimeout(timer);
-    }
-  }, [show, brand, onFinished]);
-
-  return null;
+    </div>
+  );
 }

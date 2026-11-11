@@ -4,12 +4,16 @@ import {
   BannerAdSize,
   BannerAdPosition,
 } from "@capacitor-community/admob";
+import { Capacitor } from "@capacitor/core";
 
-// ID de prueba de Google. Reemplazar por el ID real del banner antes de publicar.
+// ID de prueba de Google AdMob
 const BANNER_AD_ID = "ca-app-pub-3940256099942544/6300978111";
 
 export function AdMobBanner() {
   useEffect(() => {
+    // Only run on native Android/iOS
+    if (!Capacitor.isNativePlatform()) return;
+
     let cancelled = false;
 
     async function startAdMob() {
@@ -24,7 +28,7 @@ export function AdMobBanner() {
           adSize: BannerAdSize.ADAPTIVE_BANNER,
         });
       } catch (error) {
-        console.error("AdMob error:", error);
+        console.warn("AdMob banner unavailable:", error);
       }
     }
 
@@ -32,11 +36,14 @@ export function AdMobBanner() {
 
     return () => {
       cancelled = true;
-      AdMob.hideBanner().catch(() => {});
-      AdMob.removeBanner().catch(() => {});
+      try {
+        AdMob.hideBanner().catch(() => {});
+        AdMob.removeBanner().catch(() => {});
+      } catch {
+        /* noop */
+      }
     };
   }, []);
 
-  // Render null - the banner is managed natively
   return null;
 }

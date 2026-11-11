@@ -1,10 +1,9 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mobileblockpuzzle.game',
+  appId: 'com.ebyzom.blokana',
   appName: 'BLOKANA',
   webDir: 'dist',
-  bundledWebRuntime: false
 };
 
 export default config;

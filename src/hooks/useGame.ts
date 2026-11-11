@@ -114,18 +114,6 @@ export function useGame() {
   /** Calcula las líneas necesarias para el próximo nivel */
   const linesNeededForNextLevel = () => LINES_TO_LEVEL_1 + (level - 1) * LINES_PER_LEVEL_STEP;
 
-  /** Verifica si hay suficiente líneas para subir de nivel */
-  const canLevelUp = () => lines >= linesNeededForNextLevel();
-
-  /** Sube de nivel y reinicia el contador de líneas del nivel actual */
-  const levelUp = () => {
-    const newLevel = Math.min(level + 1, 100); // límite arbitrario alto
-    setLevel(newLevel);
-    setLinesThisLevel(LINES_TO_LEVEL_1 + (newLevel - 1) * LINES_PER_LEVEL_STEP);
-    // Emitir burst de nivel
-    // pushBurst(`¡Nivel ${newLevel}!`, "combo"); // descomentar cuando se integra pushBurst
-  };
-
   /* ---------------- ciclo de partida ---------------- */
   const newGame = useCallback(() => {
     timers.current.forEach(clearTimeout);
@@ -213,9 +201,7 @@ export function useGame() {
 
       // Verificar si sube de nivel
       const nextLinesNeeded = linesNeededForNextLevel();
-      let levelUpTriggered = false;
       if (lines + totalLines >= nextLinesNeeded && level < 100) {
-        levelUpTriggered = true;
         const newLevel = Math.min(level + 1, 100);
         setLevel(newLevel);
         setLinesThisLevel(LINES_TO_LEVEL_1 + (newLevel - 1) * LINES_PER_LEVEL_STEP);

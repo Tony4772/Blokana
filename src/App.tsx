@@ -58,16 +58,6 @@ export default function App() {
 
   const enMenu = game.screen === "menu";
 
-  if (showSplash) {
-    return (
-      <EbyzomSplash
-        appName="BLOKANA"
-        tagline="Puzzle de bloques con sabor peruano 🇵🇪"
-        onFinished={() => setShowSplash(false)}
-      />
-    );
-  }
-
   return (
     <div className="bg-blokana flex h-[100dvh] w-full justify-center overflow-hidden">
       <main
@@ -91,6 +81,15 @@ export default function App() {
         <StatsModal game={game} open={statsOpen} onClose={() => setStatsOpen(false)} />
         <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
       </main>
+
+      {showSplash && (
+        <EbyzomSplash
+          appName="BLOKANA"
+          tagline="Puzzle de bloques con sabor peruano 🇵🇪"
+          onFinished={() => setShowSplash(false)}
+        />
+      )}
+
       <AdMobBanner />
     </div>
   );

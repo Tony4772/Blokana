@@ -1,6 +1,5 @@
 {
-	"appId": "com.mobileblockpuzzle.game",
+	"appId": "com.ebyzom.blokana",
 	"appName": "BLOKANA",
-	"webDir": "dist",
-	"bundledWebRuntime": false
+	"webDir": "dist"
 }
