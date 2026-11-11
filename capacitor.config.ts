@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.mobileblockpuzzle.game',
-  appName: 'Mobile Block Puzzle',
+  appName: 'BLOKANA',
   webDir: 'dist',
   bundledWebRuntime: false
 };
